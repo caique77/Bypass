@@ -9,89 +9,121 @@ HTML_PAGE = """
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL // ADBYPASS_V3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYSTEM // ADBYPASS_V4</title>
     <style>
-        :root { --bg: #050505; --surface: #0d0d0d; --accent: #ff1493; --green: #00ff41; --text: #cccccc; --border: #222; }
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', Courier, monospace; margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .terminal-window { width: 100%; max-width: 800px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 15px 50px rgba(0,0,0,0.8); overflow: hidden; }
-        .terminal-header { background: #1a1a1a; padding: 10px 15px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); }
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
-        .content { padding: 30px; }
-        h1 { font-size: 1.2rem; color: var(--accent); margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 2px; }
-        input { width: 100%; background: #000; border: 1px solid var(--border); padding: 15px; color: var(--green); font-family: inherit; border-radius: 4px; outline: none; box-sizing: border-box; font-size: 14px; margin-bottom: 20px; }
-        input:focus { border-color: var(--accent); }
-        button { width: 100%; background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 12px; font-family: inherit; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.3s; }
-        button:hover { background: var(--accent); color: #fff; box-shadow: 0 0 15px var(--accent); }
-        #log-container { background: #000; border: 1px solid #1a1a1a; padding: 15px; height: 150px; overflow-y: auto; margin-top: 20px; font-size: 13px; line-height: 1.5; color: var(--green); text-align: left;}
-        .log-entry::before { content: "> "; }
-        .result-area { margin-top: 20px; padding: 15px; border: 1px solid var(--green); background: rgba(0, 255, 65, 0.05); display: none; text-align: center;}
-        .copy-btn { margin-top: 10px; padding: 5px 15px; font-size: 11px; border-color: var(--green); color: var(--green); width: auto; }
-        .catalog { margin-top: 40px; width: 100%; max-width: 800px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; font-size: 0.75rem; opacity: 0.6; }
-        .cat-box h3 { color: var(--accent); font-size: 0.8rem; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .cat-box ul { list-style: none; padding: 0; }
+        :root {
+            --bg: #05070a;
+            --surface: #0d1117;
+            --accent: #00f2ff;
+            --green: #00ff41;
+            --border: #30363d;
+            --text: #c9d1d9;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0; padding: 15px;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; overflow-x: hidden;
+        }
+        body::before {
+            content: " "; display: block; position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 9999; background-size: 100% 4px, 3px 100%; pointer-events: none;
+        }
+        .main-frame {
+            width: 100%; max-width: 500px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 1;
+        }
+        h1 { font-size: 1.2rem; color: var(--accent); text-align: center; margin: 0 0 20px 0; letter-spacing: 3px; text-transform: uppercase; }
+        .input-box {
+            width: 100%; background: #000; border: 1px solid var(--border);
+            padding: 12px; color: var(--accent); font-family: inherit;
+            margin-bottom: 15px; outline: none; font-size: 16px;
+        }
+        .btn-exe {
+            width: 100%; background: #161b22; border: 1px solid var(--accent);
+            color: var(--accent); padding: 15px; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; transition: 0.2s;
+        }
+        .btn-exe:active { transform: scale(0.98); background: var(--accent); color: #000; }
+        #console {
+            background: #010409; border: 1px solid #21262d;
+            height: 120px; margin-top: 15px; padding: 10px;
+            font-size: 12px; color: #8b949e; overflow-y: auto; text-align: left;
+        }
+        .line::before { content: ">> "; color: var(--green); }
+        .result-panel {
+            margin-top: 15px; padding: 15px; border: 1px solid var(--green);
+            background: rgba(0, 255, 65, 0.05); display: none;
+        }
+        #final-link { color: #fff; word-break: break-all; font-size: 13px; display: block; margin: 10px 0; }
+        .copy-btn { background: var(--green); color: #000; border: none; padding: 8px 15px; font-size: 12px; font-weight: bold; width: 100%; cursor: pointer; }
+        .catalog { width: 100%; max-width: 500px; margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; opacity: 0.7; }
+        .cat-item h3 { font-size: 0.7rem; color: var(--accent); margin: 0 0 5px 0; text-transform: uppercase; }
+        .cat-item ul { list-style: none; padding: 0; margin: 0; font-size: 0.65rem; color: #8b949e; }
     </style>
 </head>
 <body>
-<div class="terminal-window">
-    <div class="terminal-header"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
-    <div class="content">
-        <h1>Bypass_System // v3.0</h1>
-        <input type="url" id="url-input" placeholder="COLE A URL ALVO AQUI..." minlength="12" maxlength="500">
-        <button onclick="startBypass()" id="main-btn">Execute_Bypass()</button>
-        <div id="log-container"><div class="log-entry">Aguardando entrada de dados...</div></div>
-        <div class="result-area" id="result-box">
-            <div style="font-size: 11px; margin-bottom: 5px;">[+][DECRYPT_SUCCESS] DESTINO ENCONTRADO:</div>
-            <div id="final-link" style="color: #fff; word-break: break-all; margin-bottom:10px;"></div>
-            <button class="copy-btn" onclick="copyToClipboard()">Copiar_Link</button>
-        </div>
+<div class="main-frame">
+    <h1>BYPASS_V4.SYS</h1>
+    <input type="url" id="target-url" class="input-box" placeholder="URL_DESTINO_ENCRIPTADA">
+    <button class="btn-exe" onclick="runBypass()" id="btn-run">INIT_DECODE()</button>
+    <div id="console"><div class="line">Kernel carregado. Aguardando input...</div></div>
+    <div class="result-panel" id="result-box">
+        <span style="font-size: 10px; color: var(--green);">[SUCCESS] LINK EXTRAÍDO:</span>
+        <div id="final-link"></div>
+        <button class="copy-btn" onclick="copyLink()">COPY_TO_BUFFER</button>
     </div>
 </div>
 <div class="catalog">
-    <div class="cat-box"><h3>Popular Ad-links</h3><ul><li>Linkvertise.com</li><li>Admaven / Lootlabs</li><li>Work.ink / Cuty.io</li></ul></div>
-    <div class="cat-box"><h3>Social Unlock</h3><ul><li>Rekonise.com</li><li>Mboost.me / Bst.gg</li><li>Sub2get / Sub4unlock</li></ul></div>
-    <div class="cat-box"><h3>Shorteners</h3><ul><li>Bit.ly / TinyURL</li><li>Pastebin / Rentry</li></ul></div>
+    <div class="cat-item"><h3>Ad-links</h3><ul><li>Linkvertise</li><li>Lootlabs</li><li>Work.ink</li></ul></div>
+    <div class="cat-item"><h3>Social</h3><ul><li>Rekonise</li><li>Mboost.me</li><li>Sub2get</li></ul></div>
 </div>
 <script>
-    function addLog(msg, color) {
-        const log = document.getElementById('log-container');
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        if(color) entry.style.color = color;
-        entry.innerText = msg;
-        log.appendChild(entry);
-        log.scrollTop = log.scrollHeight;
+    function log(m, c) {
+        const con = document.getElementById('console');
+        const d = document.createElement('div');
+        d.className = 'line';
+        if(c) d.style.color = c;
+        d.innerText = m;
+        con.appendChild(d);
+        con.scrollTop = con.scrollHeight;
     }
-    async function startBypass() {
-        const url = document.getElementById('url-input').value.trim();
-        const resultBox = document.getElementById('result-box');
-        if(url.length < 12) { addLog("ERRO: URL muito curta.", "#ff5f56"); return; }
-        document.getElementById('main-btn').disabled = true;
-        resultBox.style.display = "none";
-        addLog("Protocolo iniciado...");
-        addLog("Estabelecendo conexão...");
+    async function runBypass() {
+        const url = document.getElementById('target-url').value;
+        if(url.length < 12) return log("ERRO: URL_INVALIDA", "#ff5f56");
+        document.getElementById('btn-run').disabled = true;
+        document.getElementById('result-box').style.display = "none";
+        log("Sincronizando com engine...");
         try {
-            const response = await fetch('/api/bypass', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
+            const r = await fetch('/api/bypass', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({url: url})
             });
-            const data = await response.json();
-            if(data.success) {
-                addLog("Link decriptado com sucesso!", "#00ff41");
-                document.getElementById('final-link').innerText = data.link;
-                resultBox.style.display = "block";
-            } else { addLog("FALHA: " + data.error, "#ff5f56"); }
-        } catch(e) { addLog("ERRO CRÍTICO na API.", "#ff5f56"); }
-        finally { document.getElementById('main-btn').disabled = false; }
+            const d = await r.json();
+            if(d.success) {
+                log("Pacote recebido. Decriptando...", "#00ff41");
+                document.getElementById('final-link').innerText = d.link;
+                document.getElementById('result-box').style.display = "block";
+            } else { log("FALHA: " + d.error, "#ff5f56"); }
+        } catch(e) { log("ERRO_CONEXAO", "#ff5f56"); }
+        finally { document.getElementById('btn-run').disabled = false; }
     }
-    function copyToClipboard() {
-        const link = document.getElementById('final-link').innerText;
-        navigator.clipboard.writeText(link);
-        addLog("Copiado para a área de transferência.", "#ffbd2e");
+    function copyLink() {
+        navigator.clipboard.writeText(document.getElementById('final-link').innerText);
+        log("Copiado com sucesso.", "#ffbd2e");
     }
 </script>
-</body></html>
+</body>
+</html>
 """
 
 @app.route('/')
@@ -101,7 +133,6 @@ def index(): return render_template_string(HTML_PAGE)
 def api_bypass():
     data = request.json
     url_target = data.get('url')
-    if not url_target or len(url_target) < 12: return jsonify({'success': False, 'error': 'Entrada inválida.'})
     sessao = requests.Session()
     headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 10)'}
     try:
@@ -111,7 +142,7 @@ def api_bypass():
         res_json = res_resp.json()
         if res_json.get('status') == 'success': return jsonify({'success': True, 'link': res_json.get('result')})
         return jsonify({'success': False, 'error': 'Link não suportado.'})
-    except: return jsonify({'success': False, 'error': 'Timeout na rede.'})
+    except: return jsonify({'success': False, 'error': 'Servidor offline.'})
 
 if __name__ == '__main__':
     import os
